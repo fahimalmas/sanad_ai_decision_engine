@@ -1,0 +1,40 @@
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment Variables & Secrets (CRITICAL FOR SECURITY)
+.env
+.env.local
+*.pem
+*.key
+
+# Local Data & Database Storage
+data/uploads/*
+!data/uploads/.gitkeep
+data/chroma_db/
+
+# IDE & OS Specific
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# PyInstaller & Distribution
+build/
+dist/
+*.spec
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/

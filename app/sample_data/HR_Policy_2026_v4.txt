@@ -1,0 +1,35 @@
+--- PAGE 1 ---
+# GLOBAL IT & HR OPERATIONAL POLICY (INTERNAL USE ONLY)
+Document ID: HR-POL-2026-V4
+Effective Date: January 15, 2026 | Version: 4.2
+Classification: CONFIDENTIAL
+
+## Section 1.0 - Scope and Objective
+This document outlines standard operating procedures for all full-time, part-time, and contracted personnel across global operating entities. All guidelines governing the handling, storage, and protection of company assets and human capital adhere to international data privacy regulations (GDPR, CCPA).
+
+--- PAGE 2 ---
+## Section 2.0 - Working Hours, Remote Work & Attendance
+2.1 Standard Office Hours: Normal working hours are 9:00 AM to 6:00 PM local time, Monday through Friday.
+2.2 Remote Work Eligibility: Employees who have passed the 90-day probationary period are eligible to apply for up to 3 remote work days per week, subject to direct manager approval.
+2.3 Cross-Border Remote Work: Working from a foreign jurisdiction is strictly prohibited without prior written authorization from the Chief People Officer (CPO) and Tax Compliance Director due to permanent establishment risks.
+
+--- PAGE 17 ---
+## Section 4.0 - Expense Reimbursements & Capital Expenditures
+4.1 General Principles: All business-related expenses incurred on behalf of the company must be documented with itemized receipts and submitted within 30 days of occurrence.
+
+--- PAGE 18 ---
+## Section 4.2 - Remote Worker Hardware & Technology Stipend
+All remote worker hardware claims up to $2,500 are permissible under the annual tech stipend. Claims exceeding $1,000 require secondary director approval from a Level 4 Director prior to submission to finance.
+
+Failure to attach the countersigned Form B-12 will result in automatic rejection by the AP automated system. 
+
+Original itemized receipts must accompany every submission. The reimbursement will be processed within the subsequent monthly payroll cycle following final approval.
+
+--- PAGE 19 ---
+## Section 4.3 - Travel & Entertainment
+Business class travel is only authorized for intercontinental flights exceeding 8 continuous flight hours. All other flights must be booked under standard economy fares. Daily meal per-diem is capped at $75 per day.
+
+--- PAGE 34 ---
+## Section 7.0 - Maternity, Paternity, and Parental Leave
+7.1 Maternity Leave: Female employees with at least one year of continuous service are entitled to 16 weeks of fully paid maternity leave. An additional 4 weeks of unpaid leave may be requested.
+7.2 Paternity Leave: Male employees are entitled to 4 weeks of fully paid paternity leave to be taken within the first 6 months following childbirth.

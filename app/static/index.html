@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html class="dark" lang="ar" dir="rtl" id="html-root">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Sanad AI / نظام سَنَد الذكي لاتخاذ القرارات الموثقة</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Readex+Pro:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  
+  <!-- Tailwind Configuration matching Stitch Obsidian Intelligence Theme -->
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#0f131c",
+            "surface-container-lowest": "#0a0e16",
+            "surface-container-low": "#181c24",
+            "surface-container": "#1c2028",
+            "surface-container-high": "#262a33",
+            "surface-container-highest": "#31353e",
+            "primary": "#ffc174",
+            "primary-container": "#f59e0b",
+            "secondary": "#4edea3",
+            "secondary-container": "#10b981",
+            "tertiary": "#8fd5ff",
+            "error": "#ffb4ab",
+            "error-container": "#f43f5e",
+            "background": "#0b0f17",
+            "on-surface": "#dfe2ee",
+            "on-surface-variant": "#d8c3ad",
+            "outline": "#a08e7a",
+            "outline-variant": "rgba(255,255,255,0.08)"
+          },
+          fontFamily: {
+            headline: ["Readex Pro", "Plus Jakarta Sans", "sans-serif"],
+            body: ["Readex Pro", "Inter", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #0b0f17;
+      color: #dfe2ee;
+      font-family: 'Readex Pro', 'Inter', sans-serif;
+    }
+    .hairline-border {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .hairline-border-amber {
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f131c;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #31353e;
+      border-radius: 4px;
+    }
+    .pulse-glow {
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+    }
+  </style>
+</head>
+
+<body class="bg-[#0b0f17] text-[#dfe2ee] min-h-screen flex flex-col selection:bg-amber-500/30 selection:text-amber-200">
+
+  <!-- ========================================================================= -->
+  <!-- Top Global Navigation Bar -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-50 bg-[#0f131c]/90 backdrop-blur-md hairline-border border-b border-white/10 px-6 py-3.5 flex items-center justify-between">
+    <div class="flex items-center space-x-4 space-x-reverse">
+      <!-- Logo -->
+      <div class="flex items-center space-x-3 space-x-reverse cursor-pointer" onclick="switchTab('landing')">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg shadow-amber-500/20 text-black font-bold">
+          ⚡
+        </div>
+        <div class="flex flex-col">
+          <span class="font-headline font-bold text-lg text-white tracking-tight flex items-center gap-1.5">
+            <span id="txt-logo-title">Sanad AI / سَنَد الذكي</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          </span>
+          <span id="txt-logo-sub" class="text-[10px] font-mono uppercase tracking-wider text-amber-400/80 -mt-1">Grounded Decision Engine</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="hidden md:flex items-center space-x-1 space-x-reverse bg-[#181c24] p-1 rounded-lg hairline-border text-xs font-medium">
+        <button id="nav-landing" onclick="switchTab('landing')" class="nav-tab px-3 py-1.5 rounded-md transition-all text-amber-400 bg-[#262a33]">
+          <span id="txt-nav-overview">🌐 نظرة عامة</span>
+        </button>
+        <button id="nav-workspace" onclick="switchTab('workspace')" class="nav-tab px-3 py-1.5 rounded-md transition-all text-gray-400 hover:text-white">
+          <span id="txt-nav-workspace">📊 مساحة القرارات</span>
+        </button>
+        <button id="nav-ingestion" onclick="switchTab('ingestion')" class="nav-tab px-3 py-1.5 rounded-md transition-all text-gray-400 hover:text-white">
+          <span id="txt-nav-ingestion">📂 مركز المستندات</span>
+        </button>
+        <button id="nav-discrepancy" onclick="switchTab('discrepancy')" class="nav-tab px-3 py-1.5 rounded-md transition-all text-gray-400 hover:text-white">
+          <span id="txt-nav-discrepancy">⚖️ تدقيق الامتثال</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Right Quick Controls -->
+    <div class="flex items-center space-x-3 space-x-reverse">
+      <!-- Language Switcher Toggle -->
+      <button onclick="toggleLanguage()" class="px-3 py-1.5 rounded-md bg-[#181c24] hover:bg-[#262a33] text-xs font-bold text-amber-400 hairline-border flex items-center gap-1.5 transition-all">
+        <span id="lang-btn-text">English 🇬🇧</span>
+      </button>
+
+      <!-- Interactive Privacy & LLM Mode Selector -->
+      <div class="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded bg-[#181c24] hairline-border text-[11px] font-mono">
+        <span id="provider-status-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <select id="provider-select" onchange="onProviderSelectChange(this.value)" class="bg-transparent text-gray-300 text-[11px] font-mono focus:outline-none cursor-pointer border-none py-0 pl-1 pr-2">
+          <option value="gemini" class="bg-[#181c24] text-white">⚡ Google Gemini 2.0 (Cloud)</option>
+          <option value="ollama" class="bg-[#181c24] text-emerald-300">🛡️ On-Premises Local LLM (Air-Gapped)</option>
+        </select>
+      </div>
+
+      <button onclick="switchTab('workspace')" class="px-4 py-1.5 rounded-md bg-amber-500 hover:bg-amber-400 text-black font-semibold text-xs transition-all shadow-md shadow-amber-500/20 flex items-center gap-1">
+        <span id="txt-btn-launch">فتح مساحة العمل</span>
+        <span>➔</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN CONTAINER (SWAPPABLE VIEWS) -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 flex flex-col">
+
+    <!-- VIEW 1: HERO & LANDING PAGE -->
+    <section id="view-landing" class="view-panel flex-1 flex flex-col py-12 px-6 max-w-6xl mx-auto w-full">
+      <!-- Tag Pill -->
+      <div class="flex justify-center mb-6">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#181c24] hairline-border-amber text-xs font-mono text-amber-300">
+          <span>⚡</span>
+          <span id="txt-hero-pill">مدعوم بنماذج Gemini 2.0 وفهرسة المتجهات ChromaDB | بدون هلوسة</span>
+        </div>
+      </div>
+
+      <!-- Hero Headline -->
+      <div class="text-center max-w-4xl mx-auto mb-8">
+        <h1 id="txt-hero-h1" class="text-3xl sm:text-5xl font-headline font-extrabold tracking-tight text-white mb-4 leading-tight">
+          تحويل مئات الصفحات من اللوائح والعقود إلى <br/>
+          <span class="bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 bg-clip-text text-transparent">قرارات فورية وموثقة بالأدلة الحرفية.</span>
+        </h1>
+        <p id="txt-hero-sub" class="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
+          مساعد ذكي للقرارات المؤسسية يحلل الوثائق والسياسات، يتحقق من الامتثال بالاستشهاد برقم الصفحة والفقرة، ويكتشف التعارضات القانونية ويولد خطوات تنفيذية.
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center justify-center gap-4 mb-14">
+        <button onclick="switchTab('workspace')" class="px-6 py-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-headline font-bold text-sm transition-all shadow-lg shadow-amber-500/25 flex items-center gap-2">
+          <span id="txt-btn-demo">تجربة مساحة العمل التفاعلية</span>
+          <span>➔</span>
+        </button>
+        <button onclick="switchTab('discrepancy')" class="px-6 py-3 rounded-lg bg-[#181c24] hover:bg-[#262a33] text-white font-headline font-semibold text-sm hairline-border transition-all flex items-center gap-2">
+          <span>⚖️</span>
+          <span id="txt-btn-diff">تشغيل مقارنة وتدقيق العقود</span>
+        </button>
+      </div>
+
+      <!-- Interactive Before vs After Showcase Component -->
+      <div class="relative bg-[#0f131c] rounded-xl hairline-border p-6 shadow-2xl mb-14 overflow-hidden">
+        <div class="absolute -top-24 -left-24 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+          <div class="flex items-center gap-2">
+            <span class="text-amber-400">🏛️</span>
+            <span class="font-headline font-bold text-sm text-white" id="txt-preview-title">معاينة القرار الفوري والموثق</span>
+          </div>
+          <span id="txt-preview-badge" class="text-xs font-mono text-emerald-400 flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> <span>96.4% موثق</span>
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Left: Document Preview Frame -->
+          <div class="bg-[#181c24] rounded-lg p-4 hairline-border">
+            <div class="flex items-center justify-between mb-3 text-xs text-gray-400 font-mono">
+              <span class="flex items-center gap-1">📄 HR_Policy_2026_v4.pdf</span>
+              <span id="txt-preview-page" class="text-amber-400 font-bold">صفحة 18 من 84</span>
+            </div>
+            <div id="txt-preview-doc-content" class="bg-[#0b0f17] p-3 rounded text-xs text-gray-300 font-mono space-y-2 border-r-2 border-amber-500 text-right" dir="auto">
+              <p class="text-gray-500 text-[11px] font-bold">## Section 4.2 - Remote Worker Hardware Stipend</p>
+              <p>All remote worker hardware claims up to $2,500 are permissible under the tech stipend. <mark class="bg-amber-500/30 text-amber-200 px-1 rounded">Claims exceeding $1,000 require countersignature from a Level 4 Director</mark> prior to submission to finance.</p>
+              <p class="text-gray-400">Failure to attach the countersigned Form B-12 will result in automatic rejection.</p>
+            </div>
+          </div>
+
+          <!-- Right: Decision Card -->
+          <div class="bg-[#181c24] rounded-lg p-4 hairline-border flex flex-col justify-between" dir="auto">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span id="txt-preview-verdict-title" class="text-xs font-bold text-gray-400 uppercase tracking-wider">قرار الذكاء الاصطناعي</span>
+                <span id="txt-preview-verdict-badge" class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] font-bold border border-emerald-500/40">معتمد بشروط</span>
+              </div>
+              <p id="txt-preview-finding" class="text-xs text-gray-200 leading-relaxed mb-3">
+                طلب بدل الأجهزة يقع ضمن الحدود المسموحة بالبند 4.2، ولكن نظراً لتجاوزه 1,000 دولار، يشترط توقيع المدير التنفيذي قبل المعالجة المالية.
+              </p>
+              <div id="txt-preview-risk-box" class="bg-rose-500/10 border border-rose-500/30 rounded p-2.5 mb-3 text-[11px] text-rose-300 flex items-start gap-2">
+                <span class="text-rose-400">⚠️</span>
+                <span id="txt-preview-risk-desc"><strong>تنبيه تدقيق:</strong> يلزم إرفاق نموذج B-12 المعتمد لتفادي رفض الطلب آلياً.</span>
+              </div>
+            </div>
+            <div class="text-[11px] font-mono text-gray-400 pt-2 border-t border-white/5 flex items-center justify-between">
+              <span id="txt-preview-citation">المرجع: صفحة 18، البند 4.2</span>
+              <span id="txt-preview-latency" class="text-amber-400 font-bold">سرعة الاسترجاع: 84ms</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tech Stack Badges Strip -->
+      <div class="text-center">
+        <p class="text-[11px] font-mono uppercase tracking-widest text-gray-500 mb-4">Built with Production-Ready Enterprise AI Stack</p>
+        <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+          <span class="px-3 py-1 rounded bg-[#181c24] hairline-border text-xs font-mono text-gray-300">Google Gemini 2.0 Flash</span>
+          <span class="px-3 py-1 rounded bg-[#181c24] hairline-border text-xs font-mono text-gray-300">ChromaDB Vector Store</span>
+          <span class="px-3 py-1 rounded bg-[#181c24] hairline-border text-xs font-mono text-gray-300">FastAPI Python</span>
+          <span class="px-3 py-1 rounded bg-[#181c24] hairline-border-amber text-xs font-mono text-amber-400">Pydantic Grounding Contract</span>
+          <span class="px-3 py-1 rounded bg-[#181c24] hairline-border text-xs font-mono text-gray-300">Docker</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- VIEW 2: SPLIT-SCREEN WORKSPACE -->
+    <!-- ======================================================================= -->
+    <section id="view-workspace" class="view-panel flex-1 hidden p-4 sm:p-6 max-w-7xl mx-auto w-full">
+      <!-- Workspace Sub-Header -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-4 bg-[#0f131c] p-3 rounded-lg hairline-border">
+        <div class="flex items-center space-x-3 space-x-reverse">
+          <span class="text-amber-400">📂</span>
+          <select id="workspace-doc-select" onchange="onWorkspaceDocChange()" class="bg-[#181c24] text-xs font-mono text-white rounded hairline-border px-3 py-1.5 focus:outline-none focus:border-amber-500" dir="auto">
+            <option value="HR_Policy_2026_v4.pdf">HR_Policy_2026_v4.pdf (84 pages)</option>
+            <option value="Global_Procurement_Policy_2026.pdf">Global_Procurement_Policy_2026.pdf (65 pages)</option>
+            <option value="UAE_Labor_Law_Executive_Regulations.pdf">UAE_Labor_Law_Executive_Regulations.pdf (112 pages)</option>
+          </select>
+        </div>
+
+        <div class="flex items-center space-x-2 space-x-reverse">
+          <span id="txt-mode-label" class="text-xs text-gray-400 font-mono">الوضع / Mode:</span>
+          <button id="txt-btn-mode-compliance" class="px-2.5 py-1 rounded text-xs font-mono bg-amber-500/20 text-amber-300 border border-amber-500/40">تدقيق الامتثال</button>
+          <button id="txt-btn-mode-exec" class="px-2.5 py-1 rounded text-xs font-mono bg-[#181c24] text-gray-400 hover:text-white hairline-border">ملخص تنفيذي</button>
+        </div>
+      </div>
+
+      <!-- Split View Grid (45% Doc Viewer / 55% Decision Stream) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
+        
+        <!-- Left Column: Document & Evidence Viewer (5 cols) -->
+        <div class="lg:col-span-5 bg-[#0f131c] rounded-xl hairline-border p-4 flex flex-col h-[750px]">
+          <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
+            <span class="text-xs font-headline font-bold text-gray-300 flex items-center gap-1.5">
+              <span>🔍</span> <span id="txt-doc-viewer-head">عارض نصوص المستند والأدلة</span>
+            </span>
+            <div class="flex items-center space-x-2 space-x-reverse text-xs font-mono text-gray-400">
+              <span id="doc-page-indicator" class="text-amber-400 font-bold">الصفحة 1</span>
+              <button onclick="zoomDoc(1)" class="p-1 hover:bg-[#181c24] rounded text-white">🔍+</button>
+              <button onclick="zoomDoc(-1)" class="p-1 hover:bg-[#181c24] rounded text-white">🔍-</button>
+            </div>
+          </div>
+
+          <!-- Document Page Content Simulation -->
+          <div id="doc-viewer-canvas" class="flex-1 bg-[#141820] rounded-lg p-5 hairline-border overflow-y-auto custom-scrollbar text-xs text-gray-300 leading-relaxed space-y-4" dir="auto">
+            <div class="border-b border-white/5 pb-2 text-[10px] text-gray-500 uppercase">
+              CONFIDENTIAL // IT & HR POLICY GOVERNANCE // V4.2
+            </div>
+            <h3 class="text-sm font-bold text-white">## Section 4.2 - Remote Worker Hardware & Technology Stipend</h3>
+            <p>
+              All remote worker hardware claims up to $2,500 are permissible under the annual tech stipend.
+            </p>
+            <div id="citation-highlight-box" class="bg-amber-500/20 border-r-4 border-amber-500 p-3 rounded text-amber-100 transition-all">
+              <p class="font-semibold text-amber-300 mb-1">⚡ النص المرجعي الموثق:</p>
+              <p>"Claims exceeding $1,000 require countersignature from a Level 4 Director prior to submission to finance. Failure to attach the countersigned Form B-12 will result in automatic rejection by the AP automated system."</p>
+            </div>
+            <p>
+              Original itemized receipts must accompany every submission. The reimbursement will be processed within the subsequent monthly payroll cycle following final approval.
+            </p>
+          </div>
+        </div>
+
+        <!-- Right Column: Decision & Action Stream (7 cols) -->
+        <div class="lg:col-span-7 flex flex-col space-y-4 h-[750px]" dir="auto">
+          
+          <!-- Search & Query Input -->
+          <div class="bg-[#0f131c] rounded-xl hairline-border p-4">
+            <div class="relative flex items-center">
+              <input id="workspace-query-input" type="text" placeholder="اطرح سؤالك حول الوثيقة (مثال: شروط الدفع، الإجازات، مكافأة نهاية الخدمة، بدل الأجهزة)..." 
+                class="w-full bg-[#181c24] text-xs font-body text-white pl-24 pr-4 py-3 rounded-lg hairline-border focus:outline-none focus:border-amber-500"
+                onkeypress="if(event.key === 'Enter') runWorkspaceQuery()"/>
+              <button onclick="runWorkspaceQuery()" class="absolute left-2 px-4 py-1.5 rounded-md bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs transition-all flex items-center gap-1">
+                <span id="txt-btn-evaluate">تقييم القرار</span>
+                <span>✨</span>
+              </button>
+            </div>
+
+            <!-- Quick Query Chips -->
+            <div class="flex flex-wrap items-center gap-2 mt-3 text-[11px]">
+              <span id="txt-suggested-label" class="text-gray-500 font-mono">أسئلة مقترحة:</span>
+              <button id="txt-chip-1" onclick="setQuery('Can I claim a $1,500 laptop reimbursement?')" class="px-2.5 py-1 rounded bg-[#181c24] hover:bg-[#262a33] text-gray-300 hairline-border">💻 بدل أجهزة $1,500</button>
+              <button id="txt-chip-2" onclick="setQuery('What are the standard payment terms for vendor invoices?')" class="px-2.5 py-1 rounded bg-[#181c24] hover:bg-[#262a33] text-gray-300 hairline-border">💳 شروط الدفع Net-60</button>
+              <button id="txt-chip-3" onclick="setQuery('كم تبلغ الإجازة السنوية ومكافأة نهاية الخدمة القانونية؟')" class="px-2.5 py-1 rounded bg-[#181c24] hover:bg-[#262a33] text-gray-300 hairline-border">⚖️ الإجازة ومكافأة نهاية الخدمة</button>
+            </div>
+          </div>
+
+          <!-- Dynamic Decision Card Stream -->
+          <div id="decision-card-container" class="flex-1 bg-[#0f131c] rounded-xl hairline-border p-5 overflow-y-auto custom-scrollbar space-y-4">
+            
+            <!-- Header Verdict Strip -->
+            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+              <div>
+                <span id="txt-verdict-head" class="text-[11px] font-mono uppercase tracking-wider text-gray-400">نتيجة التحقق والامتثال</span>
+                <h2 id="decision-doc-title" class="text-sm font-headline font-bold text-white">HR_Policy_2026_v4.pdf</h2>
+              </div>
+              <div class="flex items-center gap-3">
+                <span id="decision-confidence-badge" class="text-xs font-mono text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-full">
+                  ⚡ 96.4% موثق
+                </span>
+                <span id="decision-verdict-badge" class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/40">
+                  معتمد بشروط
+                </span>
+              </div>
+            </div>
+
+            <!-- Executive Synthesis -->
+            <div class="bg-[#181c24] p-4 rounded-lg hairline-border">
+              <h4 class="text-xs font-mono text-amber-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                <span>🧠</span> <span id="txt-card-finding">النتيجة التنفيذية المباشرة</span>
+              </h4>
+              <p id="decision-summary-text" class="text-xs text-gray-200 leading-relaxed">
+                طلب بدل الأجهزة يقع ضمن الحدود المسموحة بالبند 4.2، ولكن نظراً لتجاوزه 1,000 دولار، يشترط توقيع المدير التنفيذي قبل المعالجة المالية.
+              </p>
+            </div>
+
+            <!-- Citation Box -->
+            <div class="bg-[#181c24] p-4 rounded-lg hairline-border">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono text-gray-400 flex items-center gap-1">
+                  <span class="text-amber-400">📌</span>
+                  <span id="citation-header-title">الاستشهاد الحرفي (صفحة 18، البند 4.2)</span>
+                </span>
+                <button onclick="highlightCitation()" class="text-[11px] font-mono text-amber-400 hover:underline flex items-center gap-0.5">
+                  <span id="txt-jump-doc">الانتقال للنص في المستند</span> <span>↗</span>
+                </button>
+              </div>
+              <p id="citation-quote-text" class="text-xs font-mono text-amber-200/90 bg-[#0b0f17] p-3 rounded border-r-2 border-amber-500 leading-relaxed" dir="auto">
+                "All remote worker hardware claims up to $2,500 are permissible under the tech stipend. Claims exceeding $1,000 require countersignature from a Level 4 Director prior to submission to finance."
+              </p>
+            </div>
+
+            <!-- Risk Warning Alert -->
+            <div id="decision-risk-card" class="bg-rose-500/10 border border-rose-500/30 p-3.5 rounded-lg text-xs text-rose-300">
+              <div class="flex items-center gap-2 font-bold mb-1">
+                <span class="text-rose-400">⚠️</span>
+                <span id="risk-title-text">ملاحظة تدقيق هامة</span>
+              </div>
+              <p id="risk-desc-text" class="text-[11px] text-rose-200/80">
+                يشترط إرفاق نموذج B-12 الموقع من المدير التنفيذي لتفادي رفض الطلب آلياً من النظام المالي.
+              </p>
+            </div>
+
+            <!-- Actionable Next Steps Checklist -->
+            <div class="bg-[#181c24] p-4 rounded-lg hairline-border">
+              <h4 class="text-xs font-headline font-bold text-white mb-2 flex items-center gap-1.5">
+                <span>✅</span> <span id="txt-card-checklist">قائمة الإجراءات المطلوبة للتنفيذ</span>
+              </h4>
+              <div id="action-checklist-container" class="space-y-2 text-xs">
+                <label class="flex items-center gap-2.5 text-gray-300 hover:text-white cursor-pointer" onclick="toggleActionItem(this)">
+                  <input type="checkbox" class="rounded bg-[#0b0f17] border-gray-600 text-amber-500 focus:ring-amber-500"/>
+                  <span id="txt-check-item-1">الحصول على توقيع المدير على نموذج B-12</span>
+                </label>
+                <label class="flex items-center gap-2.5 text-gray-300 hover:text-white cursor-pointer" onclick="toggleActionItem(this)">
+                  <input type="checkbox" checked class="rounded bg-[#0b0f17] border-gray-600 text-amber-500 focus:ring-amber-500"/>
+                  <span id="txt-check-item-2" class="line-through text-gray-500">إرفاق الفواتير الأصلية المفصلة</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Latency Footer -->
+            <div class="flex items-center justify-between text-[11px] font-mono text-gray-500 pt-2">
+              <span id="txt-verification-footer">التحقق: قاعدة متجهات ChromaDB</span>
+              <span id="latency-indicator" class="text-amber-400 font-bold">سرعة الاسترجاع: 42ms</span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- VIEW 3: KNOWLEDGE INGESTION & VECTOR PIPELINE -->
+    <!-- ======================================================================= -->
+    <section id="view-ingestion" class="view-panel flex-1 hidden p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-6">
+      
+      <!-- Top Metrics Strip -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-[#0f131c] p-4 rounded-xl hairline-border">
+          <span id="txt-stat-docs" class="text-[11px] font-mono text-gray-400 uppercase">إجمالي المستندات</span>
+          <p id="stat-total-docs" class="text-2xl font-headline font-bold text-white mt-1">4</p>
+        </div>
+        <div class="bg-[#0f131c] p-4 rounded-xl hairline-border">
+          <span id="txt-stat-chunks" class="text-[11px] font-mono text-gray-400 uppercase">المقاطع المفهرسة (Chunks)</span>
+          <p id="stat-total-chunks" class="text-2xl font-headline font-bold text-amber-400 mt-1">14,280</p>
+        </div>
+        <div class="bg-[#0f131c] p-4 rounded-xl hairline-border">
+          <span id="txt-stat-speed" class="text-[11px] font-mono text-gray-400 uppercase">معدل سرعة الاسترجاع</span>
+          <p class="text-2xl font-mono font-bold text-white mt-1">42ms</p>
+        </div>
+        <div class="bg-[#0f131c] p-4 rounded-xl hairline-border">
+          <span id="txt-stat-db" class="text-[11px] font-mono text-gray-400 uppercase">قاعدة المتجهات</span>
+          <p id="txt-stat-db-val" class="text-sm font-mono font-bold text-emerald-400 mt-2 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Chroma Local - 100% Healthy
+          </p>
+        </div>
+      </div>
+
+      <!-- Upload Hero Dropzone -->
+      <div id="drop-zone" class="bg-[#0f131c] rounded-xl p-8 hairline-border border-dashed hover:border-amber-500/60 transition-all text-center cursor-pointer flex flex-col items-center justify-center">
+        <input type="file" id="file-upload-input" class="hidden" accept=".pdf,.txt,.docx" onchange="handleFileUpload(event)"/>
+        <div class="w-14 h-14 rounded-full bg-[#181c24] flex items-center justify-center mb-3 hairline-border text-amber-400 text-2xl font-bold">
+          📤
+        </div>
+        <h3 id="txt-upload-head" class="text-base font-headline font-bold text-white mb-1">رفع وتضمين مستند جديد (لوائح، سياسات، عقود، بنك أسئلة)</h3>
+        <p id="txt-upload-sub" class="text-xs text-gray-400 max-w-md mb-4">
+          يدعم ملفات PDF و DOCX و TXT مع معالجة متقدمة للجداول واللغتين العربية والإنجليزية.
+        </p>
+        <button id="txt-upload-btn" onclick="document.getElementById('file-upload-input').click()" class="px-5 py-2 rounded-lg bg-[#181c24] hover:bg-[#262a33] text-amber-300 font-mono text-xs hairline-border-amber transition-all">
+          اختيار ملف من جهازك
+        </button>
+      </div>
+
+      <!-- Active Pipeline Stage Tracker -->
+      <div class="bg-[#0f131c] rounded-xl p-5 hairline-border">
+        <div class="flex items-center justify-between mb-4">
+          <span id="txt-pipeline-title" class="text-xs font-mono text-gray-400 uppercase">مراحل خط المعالجة الفوري:</span>
+          <span id="pipeline-active-file" class="text-xs font-mono text-amber-400 font-bold">جاهز للفهرسة</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bg-[#181c24] p-3 rounded hairline-border text-center">
+            <span class="text-[10px] font-mono text-gray-400 block mb-1">Stage 1</span>
+            <span id="txt-pipe-stage-1" class="text-xs font-bold text-emerald-400">1. استخراج النصوص (OCR) ✓</span>
+          </div>
+          <div class="bg-[#181c24] p-3 rounded hairline-border text-center">
+            <span class="text-[10px] font-mono text-gray-400 block mb-1">Stage 2</span>
+            <span id="txt-pipe-stage-2" class="text-xs font-bold text-emerald-400">2. التقسيم الدلالي (Chunking) ✓</span>
+          </div>
+          <div class="bg-[#181c24] p-3 rounded hairline-border-amber text-center bg-amber-500/5">
+            <span class="text-[10px] font-mono text-amber-400 block mb-1">Stage 3</span>
+            <span id="txt-pipe-stage-3" class="text-xs font-bold text-amber-300">3. تضمينات Gemini Embeddings ✓</span>
+          </div>
+          <div class="bg-[#181c24] p-3 rounded hairline-border text-center">
+            <span class="text-[10px] font-mono text-gray-400 block mb-1">Stage 4</span>
+            <span id="txt-pipe-stage-4" class="text-xs font-bold text-emerald-400">4. التخزين في ChromaDB ✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Indexed Documents Table -->
+      <div class="bg-[#0f131c] rounded-xl hairline-border p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 id="txt-catalog-head" class="text-sm font-headline font-bold text-white flex items-center gap-2">
+            <span>📑</span>
+            دليل الوثائق والمستندات المفهرسة
+          </h3>
+          <span class="text-xs font-mono text-gray-500">Live ChromaDB Sync</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-right text-xs font-mono" dir="auto">
+            <thead class="text-[11px] text-gray-400 uppercase border-b border-white/10">
+              <tr>
+                <th id="th-doc" class="py-3 px-4">اسم المستند والنسخة</th>
+                <th id="th-cat" class="py-3 px-4">التصنيف</th>
+                <th id="th-pages" class="py-3 px-4">الصفحات</th>
+                <th id="th-chunks" class="py-3 px-4">عدد المقاطع</th>
+                <th id="th-model" class="py-3 px-4">نموذج التضمين</th>
+                <th id="th-health" class="py-3 px-4">درجة التوثيق</th>
+                <th id="th-actions" class="py-3 px-4 text-left">الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="documents-table-body" class="divide-y divide-white/5 text-gray-300">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- VIEW 4: POLICY VS CONTRACT COMPLIANCE DIFF -->
+    <!-- ======================================================================= -->
+    <section id="view-discrepancy" class="view-panel flex-1 hidden p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-6">
+      
+      <!-- Comparison Header Selector -->
+      <div class="bg-[#0f131c] rounded-xl p-5 hairline-border flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-4">
+          <!-- Baseline Policy -->
+          <div class="bg-[#181c24] px-4 py-2 rounded-lg hairline-border flex items-center gap-2">
+            <span class="text-emerald-400 font-bold">✓</span>
+            <div>
+              <span id="txt-diff-baseline-label" class="text-[10px] font-mono uppercase text-gray-400 block">السياسة المرجعية المعتمدة</span>
+              <span class="text-xs font-bold text-white">Global_Procurement_Policy_2026.pdf</span>
+            </div>
+          </div>
+
+          <div class="w-8 h-8 rounded-full bg-amber-500/10 hairline-border-amber flex items-center justify-center text-amber-400 font-bold text-xs">
+            VS
+          </div>
+
+          <!-- Target Contract -->
+          <div class="bg-[#181c24] px-4 py-2 rounded-lg hairline-border flex items-center gap-2">
+            <span class="text-amber-400">📄</span>
+            <div>
+              <span id="txt-diff-target-label" class="text-[10px] font-mono uppercase text-gray-400 block">عقد المورد المستهدف</span>
+              <span class="text-xs font-bold text-white">Vendor_TechServices_SLA_Draft.pdf</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="runDiscrepancyAudit()" class="px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs transition-all shadow-md shadow-amber-500/20 flex items-center gap-1.5">
+          <span>⚡</span>
+          <span id="txt-btn-run-audit">تشغيل التدقيق واكتشاف التناقضات</span>
+        </button>
+      </div>
+
+      <!-- Main Diff Layout (Dual Column + Right Audit Overview) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Side: Redline Diff Clauses (8 cols) -->
+        <div class="lg:col-span-8 space-y-4">
+          
+          <!-- Critical Conflict Card (Floating Alert) -->
+          <div class="bg-rose-500/10 border border-rose-500/30 rounded-xl p-4 text-xs text-rose-200">
+            <div class="flex items-center justify-between mb-2">
+              <span id="txt-diff-conflict-title" class="font-bold flex items-center gap-1.5 text-rose-300">
+                <span>⚠️</span> تعارض حرج مكتشف (مخاطر مالية عالية)
+              </span>
+              <span id="txt-diff-conflict-severity" class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[10px] font-mono">درجة الخطورة: عالية</span>
+            </div>
+            <p id="txt-diff-conflict-body" class="mb-3 text-rose-200/90 leading-relaxed">
+              شروط دفع المورد (Net-30 يوماً) تخالف سياسة الشركة الإلزامية (Net-60 يوماً). غرامة التأخير (12% مركبة شهرياً) تتجاوز الحدود القانونية.
+            </p>
+            <button onclick="generateAmendmentModal()" class="px-3.5 py-1.5 rounded-md bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs transition-all flex items-center gap-1.5">
+              <span>✨</span>
+              <span id="txt-btn-gen-amendment">توليد بند بديل متوافق نظامياً مع سياسة الشركة</span>
+            </button>
+          </div>
+
+          <!-- Side-by-Side Clause Comparison 1 -->
+          <div class="bg-[#0f131c] rounded-xl hairline-border p-4">
+            <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
+              <span id="txt-clause-cmp-1" class="text-xs font-mono text-gray-400">مقارنة البند #1: شروط الدفع والغرامات</span>
+              <span id="txt-clause-badge-1" class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 text-[10px] font-mono font-bold">غير متوافق</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div class="bg-[#181c24] p-3 rounded hairline-border font-mono text-right" dir="auto">
+                <span id="txt-clause-base-title-1" class="text-[10px] font-bold text-emerald-400 block mb-1">السياسة المعتمدة (البند 3.2)</span>
+                <p id="txt-clause-base-body-1" class="text-gray-300">"يجب أن تكون شروط الدفع Net-60 يوماً من تاريخ الفاتورة. غرامة الإنهاء المبكر محددة بـ 5% كحد أقصى."</p>
+              </div>
+              <div class="bg-[#181c24] p-3 rounded border border-rose-500/30 font-mono text-right" dir="auto">
+                <span id="txt-clause-target-title-1" class="text-[10px] font-bold text-rose-400 block mb-1">عقد المورد (البند 8.4)</span>
+                <p id="txt-clause-target-body-1" class="text-gray-300">"شروط الدفع: Net-30 يوماً حصراً. تفرض غرامة تأخير بنسبة 12% شهرياً."</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Side-by-Side Clause Comparison 2 -->
+          <div class="bg-[#0f131c] rounded-xl hairline-border p-4">
+            <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
+              <span id="txt-clause-cmp-2" class="text-xs font-mono text-gray-400">مقارنة البند #2: سقف المسؤولية القانونية</span>
+              <span id="txt-clause-badge-2" class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 text-[10px] font-mono font-bold">مسؤولية غير مقيدة</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div class="bg-[#181c24] p-3 rounded hairline-border font-mono text-right" dir="auto">
+                <span id="txt-clause-base-title-2" class="text-[10px] font-bold text-emerald-400 block mb-1">السياسة المعتمدة (البند 3.3)</span>
+                <p id="txt-clause-base-body-2" class="text-gray-300">"لا يجوز أن تتجاوز المسؤولية القصوى إجمالي قيمة العقد المدفوعة خلال الـ 12 شهراً السابقة."</p>
+              </div>
+              <div class="bg-[#181c24] p-3 rounded border border-rose-500/30 font-mono text-right" dir="auto">
+                <span id="txt-clause-target-title-2" class="text-[10px] font-bold text-rose-400 block mb-1">عقد المورد (البند 9.1)</span>
+                <p id="txt-clause-target-body-2" class="text-gray-300">"تظل مسؤولية المورد غير محددة لسقف مالي في حالات الإهمال أو توقف الخدمة لأكثر من 4 ساعات."</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Side: Audit Overview Sidebar (4 cols) -->
+        <div class="lg:col-span-4 bg-[#0f131c] rounded-xl hairline-border p-5 flex flex-col justify-between space-y-6">
+          <div>
+            <h3 id="txt-diff-score-title" class="text-sm font-headline font-bold text-white mb-4">نظرة عامة على الامتثال</h3>
+            
+            <!-- Radial / Circular Gauge -->
+            <div class="flex flex-col items-center justify-center p-6 bg-[#181c24] rounded-xl hairline-border mb-6">
+              <div class="relative w-28 h-28 flex items-center justify-center">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                  <path class="text-gray-700" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  <path class="text-amber-500" stroke-dasharray="74, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                </svg>
+                <div class="absolute flex flex-col items-center">
+                  <span class="text-2xl font-bold font-mono text-white">74%</span>
+                  <span id="txt-diff-gauge-label" class="text-[9px] font-mono uppercase text-gray-400">نسبة التوافق</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Breakdown List -->
+            <div class="space-y-2.5 text-xs font-mono">
+              <div class="flex items-center justify-between bg-[#181c24] p-2.5 rounded hairline-border">
+                <span id="txt-breakdown-1" class="flex items-center gap-1.5 text-emerald-400">
+                  <span>✓</span> بنود متوافقة ومعتمدة
+                </span>
+                <span class="font-bold text-white">18</span>
+              </div>
+              <div class="flex items-center justify-between bg-[#181c24] p-2.5 rounded hairline-border">
+                <span id="txt-breakdown-2" class="flex items-center gap-1.5 text-rose-400">
+                  <span>⚠️</span> تعارضات عالية الخطورة
+                </span>
+                <span class="font-bold text-rose-400">3</span>
+              </div>
+              <div class="flex items-center justify-between bg-[#181c24] p-2.5 rounded hairline-border">
+                <span id="txt-breakdown-3" class="flex items-center gap-1.5 text-sky-400">
+                  <span>ℹ️</span> بنود بحاجة لتوضيح
+                </span>
+                <span class="font-bold text-sky-400">2</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Export Report Module -->
+          <div class="border-t border-white/10 pt-4 space-y-2">
+            <span id="txt-export-title" class="text-[11px] font-mono text-gray-400 uppercase block mb-1">تصدير تقرير التدقيق</span>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="/api/export/audit-pdf" target="_blank" class="px-3 py-2 rounded bg-[#181c24] hover:bg-[#262a33] hairline-border text-center text-xs font-mono text-white flex items-center justify-center gap-1">
+                <span id="txt-btn-pdf">📄 تقرير PDF</span>
+              </a>
+              <a href="/api/export/audit-json" target="_blank" class="px-3 py-2 rounded bg-[#181c24] hover:bg-[#262a33] hairline-border text-center text-xs font-mono text-white flex items-center justify-center gap-1">
+                <span id="txt-btn-json">💾 بيانات JSON</span>
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Global Footer with Author Attribution -->
+    <footer class="border-t border-white/10 bg-[#0f131c]/60 py-4 px-6 text-center text-xs font-mono text-gray-500 flex flex-wrap items-center justify-between gap-2">
+      <div>
+        <span>© 2026 Sanad AI. Precision Enterprise Intelligence.</span>
+      </div>
+      <div>
+        <span>Engineered with ❤️ by </span>
+        <a href="https://www.fmas.dev/" target="_blank" class="text-amber-400 font-bold hover:underline">Fahim Almas (fmas.dev)</a>
+        <span class="text-gray-600"> | </span>
+        <a href="https://www.credly.com/badges/34d55684-10d4-4a96-b5bc-775f45df7a28/public_url" target="_blank" class="text-emerald-400 hover:underline">Google Cloud Vertex AI Certified</a>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: GENERATE AMENDMENT CLAUSE -->
+  <!-- ========================================================================= -->
+  <div id="amendment-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#0f131c] max-w-lg w-full rounded-xl hairline-border p-6 shadow-2xl space-y-4 text-right" dir="auto">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <h3 id="txt-modal-title" class="font-headline font-bold text-sm text-white flex items-center gap-1.5">
+          <span>✨</span>
+          البند البديل المتوافق نظامياً مع السياسة
+        </h3>
+        <button onclick="closeAmendmentModal()" class="text-gray-400 hover:text-white">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <span id="txt-modal-conflict-label" class="text-[11px] font-mono text-gray-400 block mb-1">التعارض الحالي:</span>
+          <p id="txt-modal-conflict-text" class="bg-[#181c24] p-2.5 rounded text-rose-300 font-mono">شروط دفع 30 يوماً مع غرامة 12% مركبة</p>
+        </div>
+
+        <div>
+          <span id="txt-modal-amend-label" class="text-[11px] font-mono text-emerald-400 block mb-1">✨ الصياغة القانونية البديلة المقترحة:</span>
+          <p id="amendment-result-text" class="bg-[#181c24] p-3 rounded text-emerald-200 font-mono border-r-2 border-emerald-500 leading-relaxed" dir="auto">
+            "البند 8.4 (معدل): يتم سداد مستحقات المورد خلال ستين (60) يوماً من تاريخ استلام الفاتورة المعتمدة (Net-60). في حال وجود نزاع حول مبالغ محددة، تتم معالجة المبالغ غير المتنازع عليها دون فرض أي غرامات تأخير."
+          </p>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
+        <button id="txt-modal-btn-close" onclick="closeAmendmentModal()" class="px-4 py-1.5 rounded bg-[#181c24] text-xs font-mono text-gray-300">إغلاق</button>
+        <button id="txt-modal-btn-copy" onclick="copyAmendmentText()" class="px-4 py-1.5 rounded bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs flex items-center gap-1">
+          📋 نسخ البند
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Logic -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

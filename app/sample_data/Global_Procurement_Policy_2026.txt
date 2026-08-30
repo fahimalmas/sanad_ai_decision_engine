@@ -1,0 +1,27 @@
+--- PAGE 1 ---
+# GLOBAL PROCUREMENT & VENDOR GOVERNANCE POLICY
+Document ID: PROC-POL-2026-FINAL
+Effective Date: February 1, 2026 | Version: 2.4
+Classification: INTERNAL / LEGAL RESTRICTED
+
+## Section 1.0 - Purpose and Applicability
+This policy governs all procurement contracts, master service agreements (MSAs), statements of work (SOWs), and vendor onboarding procedures across all subsidiaries and operating business units.
+
+--- PAGE 12 ---
+## Section 3.0 - Commercial Terms and Financial Governance
+3.1 Vendor Selection: Any purchase order exceeding $50,000 must undergo a competitive bidding process involving at least three qualified vendors.
+
+--- PAGE 13 ---
+## Section 3.2 - Standard Payment Terms & Early Termination
+Payment Terms must strictly be Net-60 days from invoice date. Early payment discounts (e.g., 2% Net-10) are encouraged. Early termination penalty is capped at 5% of the remaining unbilled contract value. 
+
+Under no circumstances should any operating division agree to payment terms shorter than Net-60 without explicit written derogation from the Chief Financial Officer (CFO).
+
+--- PAGE 14 ---
+## Section 3.3 - Liability and Indemnification
+Maximum liability shall not exceed the total contract value paid over the preceding 12 months. Any uncapped liability clauses from external vendors are strictly prohibited.
+All vendors must carry commercial general liability insurance with a minimum limit of $2,000,000 per occurrence.
+
+--- PAGE 25 ---
+## Section 5.0 - Data Security and Cloud Hosting
+Vendors processing corporate or customer personal data must maintain SOC2 Type II certification or ISO 27001 compliance. Data must remain encrypted in transit (TLS 1.3) and at rest (AES-256).

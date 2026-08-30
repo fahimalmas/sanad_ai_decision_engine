@@ -1,0 +1,17 @@
+--- PAGE 1 ---
+# MASTER SERVICES AGREEMENT & SLA DRAFT
+Document ID: AGR-VENDOR-2026-DRAFT
+Parties: Global Enterprise Corp ("Client") & Apex Cloud Solutions LLC ("Vendor")
+Effective Date: March 1, 2026
+
+## Clause 1.0 - Scope of Services
+Vendor shall provide Tier-3 Managed Cloud Infrastructure, Database Optimization, and 24/7 Incident Response as defined in Statement of Work #1.
+
+--- PAGE 5 ---
+## Clause 8.0 - Fees, Invoicing, and Payment
+Clause 8.4: Payment Obligations: Payment Terms: Strictly Net-30 days upon invoice delivery. Late payments incur a 12% compound monthly surcharge. Client waives any right to set-off disputed amounts against future invoices.
+
+--- PAGE 6 ---
+## Clause 9.0 - Indemnification and Limitation of Liability
+Clause 9.1: Indemnification: Vendor liability remains uncapped for cases of gross negligence, data breaches, or service downtime exceeding 4 consecutive hours.
+Clause 9.2: Early Termination: In the event of early termination by Client for convenience, Client shall pay a termination charge equal to 25% of the total remaining contract duration fees.
