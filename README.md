@@ -32,7 +32,7 @@ Organizations spend thousands of hours manually reviewing dense policy handbooks
 | **Output Type** | Long, unstructured text essays | **Structured Verdict + Confidence + Actions** |
 | **Grounding Reliability** | Unbounded (invents answers when unsure) | **Evidence-Constrained Contract (Measured Abstention)** |
 | **Evidence & Citations** | Vague or non-existent references | **Verbatim quotes + exact page/section anchors** |
-| **Policy vs Contract** | Cannot detect legal discrepancies | **Automated Redline Diff & Alignment Score (74%)** |
+| **Policy vs Contract** | Cannot detect legal discrepancies | **Automated Redline Diff & Dynamic Alignment Scoring** |
 | **Execution Path** | User is left wondering what to do | **Interactive step-by-step Action Checklist** |
 
 ---
@@ -86,12 +86,12 @@ Split view pairing the source document viewer (with bounding box highlights) alo
 ![Workspace](docs/assets/workspace.png)
 
 ### 2. Knowledge Ingestion & Vector Pipeline
-Live 4-stage pipeline tracker (`OCR -> Chunking -> Gemini Embeddings -> ChromaDB Storage`) with system metrics and document catalog.
+Live 4-stage pipeline tracker (`OCR -> Structure-Aware Chunking -> Dense Embeddings -> ChromaDB Storage`) with system metrics and document catalog.
 
 ![Ingestion](docs/assets/ingestion.png)
 
 ### 3. Policy vs Contract Discrepancy Engine
-Automated side-by-side redline diff comparing baseline corporate policies against vendor draft contracts, featuring a 74% compliance circular gauge and one-click compliant clause generation.
+Automated side-by-side redline diff comparing baseline corporate policies against vendor draft contracts, featuring dynamic compliance scoring and one-click compliant clause generation.
 
 ![Discrepancy Engine](docs/assets/discrepancy.png)
 
@@ -169,7 +169,7 @@ Sanad AI utilizes a **Hierarchical Parent-Child Chunking Strategy**:
 - **Parent Context Window (1,500–2,000 tokens):** Re-assembled at synthesis time so the LLM receives full clause context without losing surrounding caveats or conditional sub-clauses.
 
 #### 4. Why ChromaDB for enterprise local storage?
-ChromaDB provides an embedded, zero-network-overhead vector database running directly inside the container without external SaaS dependencies. This guarantees zero external data leakage for air-gapped on-premises deployments.
+ChromaDB provides an embedded, zero-network-overhead vector database running directly inside the container without external SaaS dependencies. This guarantees on-premises data isolation with zero external network egress for air-gapped deployments.
 
 ---
 
@@ -181,7 +181,7 @@ Sanad AI supports dynamic model routing across cloud and air-gapped environments
 | :--- | :--- | :---: | :--- |
 | **High-Throughput (Default)** | `gemini-2.0-flash` | ~45ms | High-volume operational compliance checks & instant policy lookups |
 | **Deep Legal Reasoning** | `gemini-2.0-pro-exp` | ~800ms | Complex multi-party liability clauses, SLA penalties & arbitration redlines |
-| **100% On-Premises Air-Gapped** | `gemma2:9b` via Ollama | ~120ms | Sensitive banking, defense, and healthcare (Zero Data Leakage) |
+| **100% On-Premises Air-Gapped** | `gemma2:9b` via Ollama | ~120ms | Sensitive banking, defense, and healthcare (Air-Gapped / Zero External Egress) |
 
 ```env
 # Configure in .env:
