@@ -9,9 +9,9 @@
 ![ChromaDB](https://img.shields.io/badge/Vector%20DB-ChromaDB-green.svg)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)
 
-**Turn 100+ page organizational policies, legal regulations, and vendor contracts into instant, grounded decisions with zero hallucinations.**
+**Turn 100+ page organizational policies, legal regulations, and vendor contracts into structured, evidence-grounded decisions with verifiable citations and measured abstention.**
 
-[Explore Live Demo](#-quick-start) • [Architecture](#-architecture) • [Key Features](#-key-features) • [Screenshots](#-ui-showcase) • [API Specs](#-api-endpoints)
+[Explore Live Demo](#-quick-start) • [Architecture](#-architecture) • [Empirical Benchmark](#-empirical-rag-benchmark--reliability-sla) • [Failure Analysis](evals/FAILURE_ANALYSIS.md) • [API Specs](#-api-endpoints)
 
 <br/><br/>
 
@@ -30,7 +30,7 @@ Organizations spend thousands of hours manually reviewing dense policy handbooks
 | Metric / Scenario | ❌ Traditional RAG & Basic Chatbots | ⚡ Sanad AI Decision Engine |
 | :--- | :--- | :--- |
 | **Output Type** | Long, unstructured text essays | **Structured Verdict + Confidence + Actions** |
-| **Hallucination Risk** | High (invents answers when unsure) | **Strict Grounding Contract (Zero hallucination)** |
+| **Grounding Reliability** | Unbounded (invents answers when unsure) | **Evidence-Constrained Contract (Measured Abstention)** |
 | **Evidence & Citations** | Vague or non-existent references | **Verbatim quotes + exact page/section anchors** |
 | **Policy vs Contract** | Cannot detect legal discrepancies | **Automated Redline Diff & Alignment Score (74%)** |
 | **Execution Path** | User is left wondering what to do | **Interactive step-by-step Action Checklist** |
@@ -94,8 +94,8 @@ High-converting landing page highlighting the value proposition and architecture
 
 ---
 
-* **Strict Grounding & Zero Hallucination:** Constrained to verbatim document context. If a clause is absent, the engine declares insufficient evidence instead of fabricating answers.
-* **100% On-Premises & Air-Gapped Support:** Supports running fully offline with Local LLMs (Google Gemma 2, Llama 3 via Ollama) and local ChromaDB for complete enterprise data sovereignty (Zero Data Leakage).
+* **Evidence-Constrained Grounding:** Constrained to verbatim document context. If a clause is absent, the engine enforces a strict abstention protocol instead of fabricating ungrounded answers.
+* **100% On-Premises & Air-Gapped Support:** Supports running fully offline with Local LLMs (Google Gemma 2, Llama 3 via Ollama) and local ChromaDB for complete enterprise data sovereignty (Zero External Egress).
 * **Dual-Column Redline Diff:** Compares baseline policies against third-party contracts (e.g. Net-60 vs Net-30 payment terms) and flags non-compliant risks.
 * **AI-Powered Amendment Generator:** Generates legally compliant clause replacements in one click.
 * **Interactive Action Checklist:** Converts policy requirements into actionable checkboxes (e.g., countersignature on Form B-12).
@@ -106,7 +106,10 @@ High-converting landing page highlighting the value proposition and architecture
 
 ## 📊 Empirical RAG Benchmark & Reliability SLA
 
-Rather than relying on qualitative assertions, Sanad AI is evaluated against an automated 20-scenario ground-truth test suite (`evals/datasets/ground_truth_eval.json`) measuring factual faithfulness, citation precision, out-of-distribution abstention, and adversarial defense.
+Rather than relying on qualitative assertions, Sanad AI is evaluated against an automated 20-scenario ground-truth test suite measuring factual faithfulness, citation precision, out-of-distribution abstention, and adversarial defense.
+
+* 📖 **Detailed Documentation:** [Evaluation Methodology & Dataset Provenance](evals/README.md)
+* 🔬 **Post-Mortem Studies:** [Failure Mode Analysis & Regression Fixes](evals/FAILURE_ANALYSIS.md)
 
 ```bash
 # Run the empirical benchmark suite
@@ -120,7 +123,7 @@ python evals/eval_suite.py
 | **Composite Faithfulness** | **100.0%** | $\ge 95.0\%$ | Weighted composite score across precision, grounding, and safety |
 | **In-Domain Grounded Accuracy** | **100.0%** (10/10) | $\ge 95.0\%$ | Correct structured verdict and policy finding against baseline ground-truth |
 | **Citation & Page Anchor Precision** | **100.0%** (10/10) | $\ge 95.0\%$ | Verbatim quote substring containment & exact page/clause matching |
-| **Abstention on Unanswerable Queries** | **100.0%** (5/5) | **100.0%** | Zero Hallucination: Strict refusal on out-of-bounds topics (e.g. crypto/recipes) |
+| **Abstention on Unanswerable Queries** | **100.0%** (5/5) | **100.0%** | Strict refusal on out-of-bounds topics (e.g. crypto/recipes) without hallucination |
 | **Prompt Injection Defense Rate** | **100.0%** (5/5) | **100.0%** | Interception of direct/indirect injection, jailbreaks, and delimiter escapes |
 | **Average Decision Latency** | **< 45ms** (p95=1.5ms) | $\le 500\text{ms}$ | Sub-second enterprise turnaround for real-time decision workspaces |
 
