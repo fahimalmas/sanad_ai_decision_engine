@@ -43,26 +43,34 @@ Sanad AI couples **Google Gemini 2.0 Flash**, **ChromaDB vector retrieval**, and
 
 ```mermaid
 flowchart TD
-    subgraph Ingestion [1. Document Ingestion & Chunking Pipeline]
-        Doc[PDF / DOCX / TXT Policies] --> Parser[Text & Structure Parser]
-        Parser --> Chunker[Semantic Section-Aware Chunker]
+    subgraph Ingestion [1. Document Ingestion & Vector Pipeline]
+        Doc[PDF / DOCX / TXT Policies] --> SecScan[Security Guardrails: Injection & Unicode Scan]
+        SecScan --> Parser[Text & Structure Parser]
+        Parser --> Chunker[Hierarchical Parent-Child Chunker]
         Chunker --> Embedder[text-embedding-004]
         Embedder --> VectorDB[(Local ChromaDB Vector Store)]
     end
 
-    subgraph QueryExecution [2. Grounded Decision Stream]
-        UserQuery[User Policy Question] --> Ret[Top-K Semantic Vector Search]
+    subgraph QueryExecution [2. Guarded Grounding & Model Routing]
+        UserQuery[User Policy Query] --> QueryGuard[Prompt Injection & Threat Sanitizer]
+        QueryGuard --> Ret[Top-K Semantic Vector Retrieval]
         VectorDB --> Ret
-        Ret --> GroundingPrompt[Grounding & Evidence Context Assembly]
-        GroundingPrompt --> Gemini[Google Gemini 2.0 / 1.5 Flash]
-        Gemini --> PydanticContract[Pydantic Structured Decision Contract]
+        Ret --> AbstainGate{Evidence Check}
+        AbstainGate -- Missing Evidence --> AbstainResp[Strict Abstention: INSUFFICIENT_EVIDENCE]
+        AbstainGate -- Verified Context --> ContextAssembly[Parent Context & Evidence Assembly]
+        ContextAssembly --> Router{Model Tier Router}
+        Router -->|Fast Cloud SLA| Gemini[Google Gemini 2.0 Flash / Pro]
+        Router -->|100% Air-Gapped| Ollama[Local Ollama Gemma2 / Llama3]
+        Gemini --> Contract[Pydantic Structured Decision Contract]
+        Ollama --> Contract
     end
 
-    subgraph OutputSynthesis [3. Interactive Enterprise Workspace]
-        PydanticContract --> Verdict[Direct Verdict & Confidence Score]
-        PydanticContract --> Citations[Verbatim Page Citations]
-        PydanticContract --> Blockers[Process Blockers & Risk Alerts]
-        PydanticContract --> ActionChecklist[Interactive Action Checklist]
+    subgraph OutputSynthesis [3. Enterprise Decision Workspace]
+        Contract --> Verdict[Structured Verdict & Confidence Badge]
+        Contract --> Citations[Verbatim Page & Clause Anchors]
+        Contract --> Blockers[Process Blockers & Compliance Risks]
+        Contract --> ActionChecklist[Interactive Action Checklist]
+        Contract --> RedlineDiff[Policy vs Contract Redline Diff & Amendments]
     end
 ```
 
