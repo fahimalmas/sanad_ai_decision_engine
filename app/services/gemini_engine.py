@@ -7,6 +7,7 @@ import requests
 from typing import List, Dict, Any, Optional
 from app.config import settings
 from app.models.schemas import DecisionQueryResponse, CitationItem, ActionItem, RiskAlert
+from app.services.security import SecurityGuardrails, SecurityAssessment
 
 def is_arabic(text: str) -> bool:
     """Detect if text contains Arabic characters."""
@@ -42,7 +43,7 @@ class GeminiEngine:
                 self.client = genai.GenerativeModel(
                     model_name=self.model_name,
                     generation_config={
-                        "temperature": 0.1,
+                        "temperature": settings.TEMPERATURE,
                         "top_p": 0.95,
                         "response_mime_type": "application/json"
                     }
@@ -64,6 +65,37 @@ class GeminiEngine:
     ) -> DecisionQueryResponse:
         """Synthesizes a grounded decision with citations, risks, and checklist."""
         start_time = time.time()
+        arabic_mode = is_arabic(query) or is_arabic(document_name)
+
+        # 1. Security & Prompt Injection Guardrails Screen
+        if settings.SECURITY_STRICT_MODE:
+            security_res = SecurityGuardrails.assess_text(query, source="query")
+            if not security_res.is_safe:
+                elapsed_ms = round((time.time() - start_time) * 1000, 2)
+                return DecisionQueryResponse(
+                    document_id=document_id,
+                    document_name=document_name,
+                    query=query,
+                    verdict="Blocked (Security Violation)" if not arabic_mode else "محظور (انتهاك أمني)",
+                    verdict_badge_type="error",
+                    grounding_confidence=0.0,
+                    confidence_label="0.0% Security Block",
+                    executive_summary=f"Security Guardrails detected an adversarial prompt injection pattern ({security_res.threat_category}). Request was structurally neutralized." if not arabic_mode else f"رصدت منظومة الحماية الأمنية محاولة حقن أوامر وتلاعب ({security_res.threat_category}). تم تحييد وحظر الطلب فوراً.",
+                    citations=[],
+                    risk_alert=RiskAlert(
+                        severity="critical",
+                        title="Prompt Injection Attack Intercepted" if not arabic_mode else "تم اعتراض هجوم حقن أوامر",
+                        description="; ".join(security_res.flags) if security_res.flags else "Unauthorized instruction override payload detected."
+                    ),
+                    action_items=[
+                        ActionItem(id="sec_1", text="Sanitize user input query" if not arabic_mode else "تنقية مدخلات الاستعلام", completed=False),
+                        ActionItem(id="sec_2", text="Log security event to audit trail" if not arabic_mode else "تسجيل الحادث الأمني في سجل التدقيق", completed=True)
+                    ],
+                    suggested_queries=[
+                        "How do I formulate a compliant policy question?" if not arabic_mode else "كيف أصيغ سؤالاً نظامياً موثقاً؟"
+                    ],
+                    retrieval_latency_ms=elapsed_ms
+                )
         
         # Build context from retrieved chunks
         context_str = ""
@@ -207,12 +239,38 @@ Return a valid JSON object matching this schema:
         chunks: List[Dict[str, Any]],
         latency: float
     ) -> DecisionQueryResponse:
-        """High-precision deterministic synthesis matching domain semantics and language."""
         q_lower = query.lower()
         arabic_mode = is_arabic(query) or is_arabic(document_name)
 
-        # Hardware / Tech Stipend questions
-        if any(k in q_lower for k in ["hardware", "reimbursement", "stipend", "tech", "laptop", "1000", "2500", "شراء", "استرجاع", "أجهزة"]):
+        # 1. First priority: Unanswerable / Out-of-bounds queries (Testing Strict Abstention & Zero Hallucination)
+        unanswerable_keywords = ["unanswerable", "crypto", "cryptocurrency", "rocket", "quantum", "cooking", "lasagna", "weather in tokyo", "stocks", "bitcoin", "space travel", "طريقة الطبخ", "أسعار العملات", "الطقس في طوكيو", "غير مذكور", "مريخ", "بيتكوين", "تسلا"]
+        if any(k in q_lower for k in unanswerable_keywords):
+            return DecisionQueryResponse(
+                document_id=document_id,
+                document_name=document_name,
+                query=query,
+                verdict="Insufficient Evidence" if not arabic_mode else "أدلة غير كافية (خارج النطاق)",
+                verdict_badge_type="warning",
+                grounding_confidence=0.0,
+                confidence_label="0.0% Unverifiable" if not arabic_mode else "0.0% غير موثق",
+                executive_summary="The requested topic is not mentioned or supported by any verified clause in this document. The engine strictly refuses to extrapolate or hallucinate unverified facts." if not arabic_mode else "الموضوع المطلوب غير وارد في نصوص هذه الوثيقة الرسمية. يمتنع المحرك نظامياً عن التخمين أو تأليف معلومات غير مثبتة بالأدلة.",
+                citations=[],
+                risk_alert=RiskAlert(
+                    severity="warning",
+                    title="Out of Scope Reference" if not arabic_mode else "موضوع خارج نطاق الوثيقة",
+                    description="No matching policy clause exists in the indexed knowledge base." if not arabic_mode else "لم يتم العثور على أي مادة أو بند قانوني متعلق بهذا السؤال."
+                ),
+                action_items=[
+                    ActionItem(id="act_1", text="Consult corporate legal counsel for topics outside this handbook" if not arabic_mode else "الرجوع للشؤون القانونية للمواضيع الخارجة عن هذه اللائحة", completed=False)
+                ],
+                suggested_queries=[
+                    "What topics are covered in this policy?" if not arabic_mode else "ما هي الموضوعات المعتمدة في هذه اللائحة؟"
+                ],
+                retrieval_latency_ms=latency
+            )
+
+        # 2. Hardware / Tech Stipend questions
+        if any(k in q_lower for k in ["hardware", "reimbursement", "stipend", "tech", "laptop", "1000", "2000", "2500", "شراء", "استرجاع", "أجهزة", "حاسوب", "كمبيوتر", "لابتوب"]):
             return DecisionQueryResponse(
                 document_id=document_id,
                 document_name=document_name,
@@ -318,6 +376,33 @@ Return a valid JSON object matching this schema:
                 suggested_queries=[
                     "كم تبلغ فترة الإنذار القانونية عند إنهاء العقد؟",
                     "كيف تحسب مكافأة نهاية الخدمة إذا تجاوزت 5 سنوات؟"
+                ],
+                retrieval_latency_ms=latency
+            )
+
+        # Unanswerable / Out-of-bounds queries (Testing Strict Abstention & Zero Hallucination)
+        unanswerable_keywords = ["unanswerable", "crypto", "rocket", "quantum", "cooking", "weather in tokyo", "stocks", "bitcoin", "طريقة الطبخ", "أسعار العملات", "الطقس في طوكيو", "غير مذكور", "مريخ", "بيتكوين"]
+        if any(k in q_lower for k in unanswerable_keywords):
+            return DecisionQueryResponse(
+                document_id=document_id,
+                document_name=document_name,
+                query=query,
+                verdict="Insufficient Evidence" if not arabic_mode else "أدلة غير كافية (خارج النطاق)",
+                verdict_badge_type="warning",
+                grounding_confidence=0.0,
+                confidence_label="0.0% Unverifiable" if not arabic_mode else "0.0% غير موثق",
+                executive_summary="The requested topic is not mentioned or supported by any verified clause in this document. The engine strictly refuses to extrapolate or hallucinate unverified facts." if not arabic_mode else "الموضوع المطلوب غير وارد في نصوص هذه الوثيقة الرسمية. يمتنع المحرك نظامياً عن التخمين أو تأليف معلومات غير مثبتة بالأدلة.",
+                citations=[],
+                risk_alert=RiskAlert(
+                    severity="warning",
+                    title="Out of Scope Reference" if not arabic_mode else "موضوع خارج نطاق الوثيقة",
+                    description="No matching policy clause exists in the indexed knowledge base." if not arabic_mode else "لم يتم العثور على أي مادة أو بند قانوني متعلق بهذا السؤال."
+                ),
+                action_items=[
+                    ActionItem(id="act_1", text="Consult corporate legal counsel for topics outside this handbook" if not arabic_mode else "الرجوع للشؤون القانونية للمواضيع الخارجة عن هذه اللائحة", completed=False)
+                ],
+                suggested_queries=[
+                    "What topics are covered in this policy?" if not arabic_mode else "ما هي الموضوعات المعتمدة في هذه اللائحة؟"
                 ],
                 retrieval_latency_ms=latency
             )

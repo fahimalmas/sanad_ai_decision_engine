@@ -359,3 +359,30 @@ async def export_audit_pdf():
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generating PDF: {str(e)}")
+
+# =============================================================================
+# EMPIRICAL BENCHMARK & SECURITY AUDIT ENDPOINTS
+# =============================================================================
+
+@app.get("/api/evals/benchmark")
+async def get_eval_benchmark():
+    """Returns the empirical RAG grounding and reliability benchmark report."""
+    report_file = settings.BASE_DIR / "evals" / "benchmark_report.json"
+    if report_file.exists():
+        with open(report_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+    
+    # Run evaluation if report not pre-computed
+    from evals.eval_suite import BenchmarkRunner
+    runner = BenchmarkRunner()
+    return runner.run_benchmark()
+
+@app.post("/api/security/assess")
+async def assess_security_payload(payload: dict):
+    """Evaluates arbitrary text against prompt injection and security guardrails."""
+    from app.services.security import SecurityGuardrails
+    text = payload.get("text", "")
+    source = payload.get("source", "query")
+    assessment = SecurityGuardrails.assess_text(text, source=source)
+    return assessment.dict()
+
