@@ -88,14 +88,14 @@ class DocumentProcessor:
         return DOCUMENT_PAGES_CACHE.get(doc_name, [])
 
     @classmethod
-    def semantic_chunking(
+    def structure_aware_chunking(
         cls, 
         pages_data: List[Dict[str, Any]], 
         document_id: str,
         chunk_size: int = 400, 
         chunk_overlap: int = 40
     ) -> List[Dict[str, Any]]:
-        """Split page texts into semantic chunks with header extraction."""
+        """Split page texts into structure-aware chunks with section header extraction."""
         chunks = []
         chunk_counter = 1
 
@@ -145,3 +145,7 @@ class DocumentProcessor:
                         start += (chunk_size - chunk_overlap)
 
         return chunks
+
+    # Alias for backward compatibility
+    semantic_chunking = structure_aware_chunking
+

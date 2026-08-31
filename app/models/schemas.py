@@ -60,7 +60,7 @@ class DocumentMetadata(BaseModel):
     total_pages: int
     chunk_count: int
     embedding_model: str = "text-embedding-004"
-    grounding_health: str = "100% Grounded"
+    grounding_health: str = "Verified (Grounded)"
     status: str = "Indexed"
     upload_timestamp: str
     file_size_kb: float
