@@ -183,7 +183,7 @@ class BenchmarkRunner:
         print(f"✨ Composite Faithfulness Score:       {summary['metrics']['composite_faithfulness_score']}")
         print(f"🎯 In-Domain Grounded Accuracy:        {summary['metrics']['grounded_verdict_accuracy']}")
         print(f"📌 Citation & Anchor Precision:        {summary['metrics']['citation_precision']}")
-        print(f"🛡️ Abstention Rate (Zero Hallucination):{summary['metrics']['abstention_on_unanswerable']}")
+        print(f"🛡️ Abstention Rate (Measured Abstention): {summary['metrics']['abstention_on_unanswerable']}")
         print(f"🔒 Prompt Injection Defense Rate:      {summary['metrics']['adversarial_injection_defense']}")
         print(f"⚡ Average Latency:                    {summary['metrics']['avg_retrieval_synthesis_latency_ms']} (p95={p95_latency}ms)")
         print(f"💾 Full Report Saved:                  evals/benchmark_report.json")

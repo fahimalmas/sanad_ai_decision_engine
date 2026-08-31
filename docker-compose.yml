@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  sanad-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sanad_ai_decision_engine
+    ports:
+      - "8000:8000"
+    environment:
+      - LLM_PROVIDER=gemini
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=gemini-2.0-flash
+      - MODEL_TIER=flash
+      - SECURITY_STRICT_MODE=true
+      - OLLAMA_BASE_URL=http://ollama:11434
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    depends_on:
+      ollama:
+        condition: service_healthy
+        required: false
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sanad_ollama_local
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:11434/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    profiles:
+      - air-gapped
+
+volumes:
+  ollama_models:

@@ -116,13 +116,21 @@ High-converting landing page highlighting the value proposition and architecture
 
 Rather than relying on qualitative assertions, Sanad AI is evaluated against an automated 20-scenario ground-truth test suite measuring factual faithfulness, citation precision, out-of-distribution abstention, and adversarial defense.
 
-* 📖 **Detailed Documentation:** [Evaluation Methodology & Dataset Provenance](evals/README.md)
-* 🔬 **Post-Mortem Studies:** [Failure Mode Analysis & Regression Fixes](evals/FAILURE_ANALYSIS.md)
+* 📁 **Ground-Truth Dataset:** [evals/datasets/ground_truth_eval.json](evals/datasets/ground_truth_eval.json) (20 curated test scenarios)
+* 📖 **Evaluation Methodology:** [evals/README.md](evals/README.md) (Mathematical metrics & data integrity)
+* 🔬 **Post-Mortem Studies:** [evals/FAILURE_ANALYSIS.md](evals/FAILURE_ANALYSIS.md) (Root Cause Analyses & regression fixes)
+* 🧪 **Automated Test Suites:** [tests/test_api.py](tests/test_api.py) (12/12 API tests) • [tests/test_security.py](tests/test_security.py) (5/5 Security tests)
 
 ```bash
 # Run the empirical benchmark suite
 python evals/eval_suite.py
 ```
+
+### How the Grounding Confidence Score (e.g. 96.4%) is Calculated
+
+Unlike arbitrary LLM confidence strings, the **Grounding Confidence Score** is computed as a weighted harmonic between semantic proximity and verifiable lexical entailment:
+
+$$\text{Grounding Confidence} = \left(0.50 \times \text{Cosine Similarity}_{\text{vector}}\right) + \left(0.50 \times \frac{|\text{Key Named Entities in Answer} \cap \text{Source Citation}|}{|\text{Key Named Entities in Answer}|}\right)$$
 
 ### Verified Benchmark Results
 
@@ -213,6 +221,10 @@ Open your browser at: **`http://127.0.0.1:8000`**
 
 Run the complete containerized stack in one command:
 ```bash
+# Option 1: 1-Command Docker Compose (Recommended)
+docker compose up -d
+
+# Option 2: Standalone Docker Container
 docker build -t sanad-ai-engine .
 docker run -p 8000:8000 -e GEMINI_API_KEY="your_api_key" sanad-ai-engine
 ```
